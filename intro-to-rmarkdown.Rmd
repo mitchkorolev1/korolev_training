@@ -1,0 +1,36 @@
+---
+title: "Intro to RMarkdown"
+author: "Mitch Korolev"
+date: "2023-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Mitch Korolev
+
+Hi there! My name is Mitch Korolev. I love the show *Survivor*, I've applied for the show several times. When I started in R, I was terrified of it, but now I'm getting used to it.
+
+## One truth, one lie
+
+I have never pole vaulted in my life. Last field season, a typhoon ran through our camp and nearly sent me to the **hospital**. Yuck.
+
+
+```{r}
+x <- 4*3
+
+```
+
+```{r}
+
+y <- 3*4*5-9
+
+z <- 6*7-8881
+
+c <- 9 - 8
+
+d <- 66*87
+```
+
