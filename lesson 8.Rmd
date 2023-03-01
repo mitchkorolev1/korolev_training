@@ -1,0 +1,173 @@
+---
+title: "Wednesday R markdown"
+author: "Mitch Korolev"
+date: "2023-03-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Libraries
+
+```{r libraries}
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+
+## Load our data!
+
+```{r dataset}
+
+catch.original <- read.csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+```
+
+The select command from the dplyr package selects **columns**.
+
+The filter command from the dplyr package filters **rows**.
+
+## Clean data
+
+```{r cleaning data}
+#Remove the All and notesRegCode columsn from the catch_original data frame
+
+catch_data <- catch.original %>% 
+    select(Region, Year, Chinook, Sockeye, Coho, Pink, Chum)
+
+# catch_data <- catch_original %>% 
+#   select(-All, -notesRegCode)
+
+head(catch_data)
+
+```
+
+```{r}
+#Mutate chinook class from character to numeric
+catch_clean <- catch_data %>% 
+  mutate(Chinook = as.numeric(Chinook))
+
+#search for the NA value
+i <- which(is.na(catch_clean$Chinook))
+
+# located our NA value! It's a uppercase I
+catch_data[i, ]
+
+catch_clean <- catch_data %>%
+  mutate(Chinook = if_else(Chinook == "I", "1", Chinook)) %>% 
+  mutate(Chinook = as.integer(Chinook))
+```
+
+## change shape of data using pivot longer and pivot wider
+
+```{r}
+#pivot longer practice
+
+catch_long <- catch_clean %>% 
+  pivot_longer(cols = -c(Region, Year), names_to = 'species', values_to = 'catch')
+
+View(catch_long)
+
+# pivot wider practice
+
+catch_wide <- catch_long %>% pivot_wider(names_from = species, values_from = catch)
+
+head(catch_wide)
+```
+
+
+## Practice renaming columns
+```{r}
+catch_long <- catch_long %>% 
+  rename(catch_thousands = catch)
+
+head(catch_long)
+
+# remove catch_thousands
+
+catch_long <- catch_long %>% 
+  mutate(catch = catch_thousands * 1000) %>%
+  select(-catch_thousands)
+
+head(catch_long)
+```
+
+## practice using group_by and summarize.
+
+```{r}
+mean_region <- catch_long %>%
+  group_by(Region) %>%
+  summarize(catch_mean = mean(catch))
+
+head(mean_region)
+
+# summarize count by region
+
+n_region <- catch_long %>%
+  group_by(Region) %>%
+  summarize(number_of_observations =n(), 
+            total_catch = sum(catch))
+
+head(n_region)
+```
+
+## Lesson on filtering
+```{r}
+ALU_catch <- catch_long %>% filter(Region == "ALU")
+
+head(ALU_catch)
+```
+
+## Arrange some rows! sad-woo
+
+```{r}
+mean_region_arrange <- catch_long %>% 
+  group_by(Region) %>% 
+  summarize(mean_catch = mean(catch)) %>%
+  arrange(mean_catch)
+
+head(mean_region_arrange)
+```
+
+
+
+## We're practicing our joins
+
+```{r}
+# loading in auxillary dataset
+region_defs <- read.csv('https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.303.1')
+
+head(region_defs)
+
+```
+
+##Join our data
+
+```{r}
+catch_joined <- left_join(catch_long, region_defs, by = c("Region" = "code"))
+
+head(catch_joined)
+```
+
+```{r}
+region_defs <- region_defs %>%
+  rename(Region = code, Region_Name = mgmtArea)
+
+catch_joined <- left_join(catch_long, region_defs, by = "Region")
+
+head(catch_joined)
+```
+
+
+```{r}
+sites_df <- data.frame(site = c("HAW-101",
+                                "HAW-103",
+                                "OAH-320",
+                                "OAH-219",
+                                "MAI-039"))
+
+sites_df %>% 
+```
+
+
