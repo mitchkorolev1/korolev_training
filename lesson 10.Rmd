@@ -1,0 +1,37 @@
+---
+title: "lesson 10"
+author: "Mitch Korolev"
+date: "2023-03-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+source("temp-conversions.R")
+source("ggplot-helpers.R")
+
+library(ggplot2)
+```
+
+
+```{r}
+airtemps <- seq(-100,100, 10)
+
+airtemps_c <- fahr_to_celsius(airtemps)
+```
+
+```{r}
+temps_all <- convert_temps(airtemps)
+```
+
+
+```{r}
+ggplot(temps_all, mapping = aes(x = fahr, y = celsius, color = kelvin)) +
+  geom_point() +
+  custom_theme()
+```
+
